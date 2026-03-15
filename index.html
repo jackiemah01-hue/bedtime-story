@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>歷史人物睡前故事｜自動生成工具 v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+
+  :root {
+    --bg: #0a0806;
+    --bg2: #110e0a;
+    --bg3: #1a1510;
+    --gold: #c9a84c;
+    --gold-dim: #8a6d2e;
+    --gold-bright: #e8c96a;
+    --cream: #e8dcc8;
+    --cream-dim: #a89880;
+    --red: #8b2020;
+    --green: #4a7c59;
+    --text: #d4c4a8;
+    --text-dim: #7a6a54;
+    --border: #2a2218;
+    --border-gold: #3a2e1a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Serif TC', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  .moon-bg {
+    position: fixed;
+    top: -200px; right: -100px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  header {
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+
+  .moon-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 16px;
+    opacity: 0.7;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 300;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    line-height: 1.3;
+  }
+
+  header p {
+    margin-top: 12px;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    font-weight: 300;
+  }
+
+  .divider {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    margin: 24px auto;
+  }
+
+  .main-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* API Keys Section */
+  .api-section {
+    background: var(--bg2);
+    border: 1px solid var(--border-gold);
+    border-radius: 2px;
+    padding: 32px 40px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .api-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .api-section-title {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .api-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 700px) { .api-grid { grid-template-columns: 1fr; } }
+
+  .api-field label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .api-field input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border-gold);
+    color: var(--cream);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.82rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.3s;
+    border-radius: 1px;
+  }
+
+  .api-field input:focus { border-color: var(--gold-dim); }
+  .api-field input::placeholder { color: var(--text-dim); font-size: 0.78rem; }
+
+  .api-field select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border-gold);
+    color: var(--cream);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.82rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.3s;
+    border-radius: 1px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a6d2e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  .api-field select:focus { border-color: var(--gold-dim); }
+
+  .model-desc {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-top: 6px;
+    line-height: 1.5;
+    letter-spacing: 0.03em;
+  }
+
+  .model-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  .tag-fast { background: rgba(74,124,89,0.2); color: #6ab384; }
+  .tag-quality { background: rgba(201,168,76,0.15); color: var(--gold-dim); }
+  .tag-cheap { background: rgba(100,150,200,0.15); color: #7ab0d0; }
+
+  /* Input Section */
+  .input-section {
+    background: var(--bg2);
+    border: 1px solid var(--border-gold);
+    border-radius: 2px;
+    padding: 32px 40px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .input-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .input-label {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .name-input {
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg3);
+    border: 1px solid var(--border-gold);
+    color: var(--cream);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.1rem;
+    padding: 14px 20px;
+    outline: none;
+    transition: border-color 0.3s;
+    border-radius: 1px;
+  }
+
+  .name-input:focus { border-color: var(--gold-dim); }
+  .name-input::placeholder { color: var(--text-dim); font-size: 0.9rem; }
+
+  .options-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .option-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.78rem;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+    border-radius: 1px;
+  }
+
+  .option-btn:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: rgba(201,168,76,0.05);
+  }
+
+  .generate-btn {
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    border: none;
+    color: var(--bg);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 14px 36px;
+    cursor: pointer;
+    letter-spacing: 0.15em;
+    transition: all 0.3s;
+    border-radius: 1px;
+    white-space: nowrap;
+  }
+
+  .generate-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(201,168,76,0.2);
+  }
+
+  .generate-btn:disabled {
+    background: var(--border);
+    color: var(--text-dim);
+    cursor: not-allowed;
+  }
+
+  /* Progress */
+  .progress-section {
+    display: none;
+    margin-bottom: 28px;
+  }
+
+  .progress-section.visible { display: block; }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .progress-title {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+  }
+
+  .progress-pct {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--gold);
+  }
+
+  .progress-bar-bg {
+    height: 2px;
+    background: var(--border);
+    margin-bottom: 16px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    transition: width 0.8s ease;
+    width: 0%;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+
+  @media (max-width: 600px) { .steps-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  .step-item {
+    text-align: center;
+    padding: 8px 4px;
+    border: 1px solid var(--border);
+    border-radius: 1px;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    transition: all 0.3s;
+  }
+
+  .step-item.active {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: rgba(201,168,76,0.05);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .step-item.done {
+    border-color: var(--green);
+    color: #6ab384;
+    background: rgba(74,124,89,0.05);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .step-emoji { display: block; font-size: 1rem; margin-bottom: 3px; }
+  .step-label { display: block; line-height: 1.3; }
+
+  .status-line {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg2);
+    border-left: 2px solid var(--gold-dim);
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: var(--cream-dim);
+    font-style: italic;
+  }
+
+  .status-line.visible { display: flex; }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: blink 1s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* Error */
+  .error-box {
+    display: none;
+    background: rgba(139,32,32,0.15);
+    border: 1px solid var(--red);
+    padding: 14px 18px;
+    color: #c07070;
+    font-size: 0.83rem;
+    margin-bottom: 18px;
+    border-radius: 1px;
+    white-space: pre-line;
+    line-height: 1.8;
+  }
+
+  .error-box.visible { display: block; }
+
+  /* Output */
+  .output-area { display: none; }
+  .output-area.visible { display: block; }
+
+  /* Segment card */
+  .segment-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    margin-bottom: 28px;
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: all 0.5s ease;
+  }
+
+  .segment-card.revealed { opacity: 1; transform: translateY(0); }
+
+  .segment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .segment-title { display: flex; align-items: center; gap: 12px; }
+  .seg-emoji { font-size: 1.2rem; }
+
+  .seg-name {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .seg-wordcount {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .seg-toggle { color: var(--gold-dim); font-size: 0.72rem; letter-spacing: 0.1em; }
+
+  .segment-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .seg-tab {
+    padding: 10px 18px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'Noto Serif TC', serif;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .seg-tab:hover { color: var(--gold-dim); }
+  .seg-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .seg-tab.loading { opacity: 0.4; cursor: default; }
+
+  .segment-content {
+    display: none;
+    padding: 28px;
+    line-height: 2.0;
+    font-size: 0.9rem;
+    color: var(--text);
+    font-weight: 300;
+    letter-spacing: 0.03em;
+  }
+
+  .segment-content.active { display: block; }
+  .segment-content p { margin-bottom: 1.2em; }
+
+  /* Image grid */
+  .image-section { }
+
+  .image-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: gap;
+    gap: 10px;
+  }
+
+  .image-section-title {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+  }
+
+  .download-seg-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: none;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold-dim);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 1px;
+  }
+
+  .download-seg-btn:hover:not(:disabled) {
+    background: rgba(201,168,76,0.08);
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .download-seg-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .image-item {
+    position: relative;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+  }
+
+  .image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+  }
+
+  .image-item:hover img { transform: scale(1.03); }
+
+  .image-item .img-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    padding: 20px 8px 6px;
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.05em;
+  }
+
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .img-loading-dot {
+    width: 8px; height: 8px;
+    background: var(--gold-dim);
+    border-radius: 50%;
+    animation: imgpulse 1.2s ease-in-out infinite;
+  }
+
+  .img-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .img-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes imgpulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
+  .img-error-text {
+    font-size: 0.65rem;
+    color: #c07070;
+    text-align: center;
+    padding: 8px;
+  }
+
+  /* Prompt list */
+  .prompt-list { display: grid; gap: 7px; }
+
+  .prompt-item {
+    display: flex;
+    gap: 10px;
+    padding: 9px 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    border-radius: 1px;
+  }
+
+  .prompt-num {
+    color: var(--gold-dim);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.88rem;
+    flex-shrink: 0;
+    width: 34px;
+  }
+
+  .prompt-text { color: var(--cream-dim); }
+
+  /* Fact check */
+  .factcheck-section { display: grid; gap: 14px; }
+
+  .fc-block { padding: 14px 18px; border-left: 2px solid var(--border); }
+  .fc-block.confirmed { border-left-color: #4a7c59; }
+  .fc-block.disputed { border-left-color: #8b6914; }
+  .fc-block.sources { border-left-color: var(--gold-dim); }
+
+  .fc-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .fc-block.confirmed .fc-title { color: #6ab384; }
+  .fc-block.disputed .fc-title { color: #c9a040; }
+  .fc-block.sources .fc-title { color: var(--gold-dim); }
+
+  .fc-item {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    padding-left: 12px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+
+  .fc-item::before { content: '·'; position: absolute; left: 0; }
+
+  /* Shimmer */
+  .shimmer {
+    background: linear-gradient(90deg, var(--bg3) 25%, var(--border) 50%, var(--bg3) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 2px;
+    height: 13px;
+    margin-bottom: 7px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Final card */
+  .final-card {
+    display: none;
+    background: var(--bg2);
+    border: 1px solid var(--border-gold);
+    border-radius: 2px;
+    padding: 36px;
+    margin-top: 32px;
+    position: relative;
+  }
+
+  .final-card.visible { display: block; }
+
+  .final-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .final-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    margin-bottom: 24px;
+    letter-spacing: 0.1em;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .stat-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    color: var(--gold);
+    display: block;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label { font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.1em; }
+
+  .char-prompt-box {
+    background: var(--bg3);
+    border: 1px solid var(--border-gold);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .char-prompt-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .char-prompt-text {
+    font-size: 0.83rem;
+    color: var(--cream-dim);
+    line-height: 1.9;
+    font-weight: 300;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .action-btn {
+    padding: 10px 24px;
+    background: none;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold-dim);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 1px;
+  }
+
+  .action-btn:hover {
+    background: rgba(201,168,76,0.08);
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .action-btn.primary {
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    color: var(--bg);
+    border-color: transparent;
+  }
+
+  .action-btn.primary:hover {
+    background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+    color: var(--bg);
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-gold); }
+</style>
+</head>
+<body>
+<div class="moon-bg"></div>
+
+<header>
+  <span class="moon-icon">🌙</span>
+  <h1>歷史人物睡前故事</h1>
+  <p>自動生成工具 v2 · 腳本 · 插畫 · Fact Check · 一鍵下載</p>
+  <div class="divider"></div>
+</header>
+
+<div class="main-container">
+
+  <!-- API Keys -->
+  <div class="api-section">
+    <div class="api-section-title">🔑 API 設定</div>
+    <div class="api-grid" style="grid-template-columns:1fr">
+      <div class="api-field">
+        <label>Anthropic API Key</label>
+        <input type="password" id="anthropicKey" placeholder="sk-ant-api03-..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-section">
+    <label class="input-label">選擇你想聽的人物</label>
+    <div class="input-row">
+      <input class="name-input" id="personInput" type="text" placeholder="例如：武則天、拿破崙、居里夫人…" />
+      <button class="generate-btn" id="generateBtn" onclick="startGeneration()">🎙️ 開始生成</button>
+    </div>
+    <div class="options-row">
+      <button class="option-btn" onclick="setSuggestion('武則天')">武則天</button>
+      <button class="option-btn" onclick="setSuggestion('蘇軾')">蘇軾</button>
+      <button class="option-btn" onclick="setSuggestion('克麗奧佩托拉')">克麗奧佩托拉</button>
+      <button class="option-btn" onclick="setSuggestion('達文西')">達文西</button>
+      <button class="option-btn" onclick="setSuggestion('鄭和')">鄭和</button>
+      <button class="option-btn" onclick="setSuggestion('張居正')">張居正</button>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- Progress -->
+  <div class="progress-section" id="progressSection">
+    <div class="progress-header">
+      <span class="progress-title">生成進度</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+    <div class="steps-grid">
+      <div class="step-item" id="step-0"><span class="step-emoji">🌙</span><span class="step-label">引入</span></div>
+      <div class="step-item" id="step-1"><span class="step-emoji">🌱</span><span class="step-label">出身</span></div>
+      <div class="step-item" id="step-2"><span class="step-emoji">⬆️</span><span class="step-label">崛起</span></div>
+      <div class="step-item" id="step-3"><span class="step-emoji">⚔️</span><span class="step-label">衝突</span></div>
+      <div class="step-item" id="step-4"><span class="step-emoji">👑</span><span class="step-label">頂峰</span></div>
+      <div class="step-item" id="step-5"><span class="step-emoji">🍂</span><span class="step-label">晚年</span></div>
+      <div class="step-item" id="step-6"><span class="step-emoji">✨</span><span class="step-label">餘韻</span></div>
+    </div>
+  </div>
+
+  <div class="status-line" id="statusLine">
+    <div class="status-dot"></div>
+    <span id="statusText">正在生成中…</span>
+  </div>
+
+  <!-- Output -->
+  <div class="output-area" id="outputArea"></div>
+
+  <!-- Final -->
+  <div class="final-card" id="finalCard">
+    <div class="final-title" id="finalTitle">整集統計</div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="char-prompt-box">
+      <div class="char-prompt-title">🎭 Kling AI 角色基礎 Prompt</div>
+      <div class="char-prompt-text" id="charPromptText"></div>
+    </div>
+    <div class="action-row">
+      <button class="action-btn" onclick="copyCharPrompt()">複製角色 Prompt</button>
+      <button class="action-btn" onclick="resetAll()">🌙 生成另一位人物</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SEGMENTS = [
+  { id: 0, emoji: '🌙', name: '引入', target: 800 },
+  { id: 1, emoji: '🌱', name: '出身背景', target: 1800 },
+  { id: 2, emoji: '⬆️', name: '成長與崛起', target: 1800 },
+  { id: 3, emoji: '⚔️', name: '核心衝突與轉折', target: 2200 },
+  { id: 4, emoji: '👑', name: '權力頂峰時期', target: 2000 },
+  { id: 5, emoji: '🍂', name: '晚年與遠退', target: 1800 },
+  { id: 6, emoji: '✨', name: '身後影響與餘韻', target: 1600 },
+];
+
+let personName = '';
+let isGenerating = false;
+let generatedData = { scripts: [], prompts: [], facts: [], images: [], charPrompt: '' };
+let totalOps = 0;
+let currentOp = 0;
+
+
+function setSuggestion(name) {
+  document.getElementById('personInput').value = name;
+}
+
+function getAnthropicKey() { return document.getElementById('anthropicKey').value.trim(); }
+
+function updateProgress(msg) {
+  currentOp++;
+  const pct = Math.min(Math.round((currentOp / totalOps) * 100), 99);
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressBar').style.width = pct + '%';
+  if (msg) document.getElementById('statusText').textContent = msg;
+}
+
+function setStepActive(i) {
+  document.querySelectorAll('.step-item').forEach(el => el.classList.remove('active'));
+  if (i >= 0 && i < 7) document.getElementById('step-' + i).classList.add('active');
+}
+
+function setStepDone(i) {
+  const el = document.getElementById('step-' + i);
+  if (el) { el.classList.remove('active'); el.classList.add('done'); }
+}
+
+function showError(msg) {
+  const b = document.getElementById('errorBox');
+  b.textContent = msg;
+  b.classList.add('visible');
+}
+
+function hideError() { document.getElementById('errorBox').classList.remove('visible'); }
+
+async function callClaude(system, user) {
+  const key = getAnthropicKey();
+  if (!key) throw new Error('請填入 Anthropic API Key');
+  const res = await fetch('/.netlify/functions/claude', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      system,
+      messages: [{ role: 'user', content: user }]
+    })
+  });
+  if (!res.ok) {
+    let errMsg = 'API 錯誤：' + res.status;
+    try {
+      const errData = await res.json();
+      errMsg += ' — ' + (errData.error?.message || JSON.stringify(errData));
+    } catch {}
+    throw new Error(errMsg);
+  }
+  const data = await res.json();
+  return data.content.map(b => b.text || '').join('');
+}
+
+
+function createSegmentCard(seg, scriptText) {
+  const card = document.createElement('div');
+  card.className = 'segment-card';
+  card.id = 'card-' + seg.id;
+  const wc = scriptText.length;
+
+  card.innerHTML = `
+    <div class="segment-header" onclick="toggleCard(${seg.id})">
+      <div class="segment-title">
+        <span class="seg-emoji">${seg.emoji}</span>
+        <div>
+          <div class="seg-name">第0${seg.id + 1}段｜${seg.name}</div>
+          <div class="seg-wordcount">${wc} 字 ／ 目標 ${seg.target} 字</div>
+        </div>
+      </div>
+      <span class="seg-toggle" id="toggle-${seg.id}">收合 ▲</span>
+    </div>
+    <div class="segment-tabs" id="tabs-${seg.id}">
+      <button class="seg-tab active" onclick="showTab(event,${seg.id},'script')">📜 腳本</button>
+          <button class="seg-tab loading" id="tab-prompt-${seg.id}" onclick="showTab(event,${seg.id},'prompts')">✏️ Prompts</button>
+      <button class="seg-tab loading" id="tab-fact-${seg.id}" onclick="showTab(event,${seg.id},'fact')">📋 Fact Check</button>
+    </div>
+    <div class="segment-content active" id="content-script-${seg.id}">${formatScript(scriptText)}</div>
+
+    <div class="segment-content" id="content-prompts-${seg.id}">
+      <div class="shimmer"></div><div class="shimmer" style="width:80%"></div>
+    </div>
+    <div class="segment-content" id="content-fact-${seg.id}">
+      <div class="shimmer"></div><div class="shimmer" style="width:75%"></div>
+    </div>
+  `;
+
+  document.getElementById('outputArea').appendChild(card);
+  setTimeout(() => card.classList.add('revealed'), 50);
+}
+
+function formatScript(t) {
+  return t.split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('');
+}
+
+function toggleCard(id) {
+  const tabs = document.getElementById('tabs-' + id);
+  const contents = document.querySelectorAll(`#card-${id} .segment-content`);
+  const toggle = document.getElementById('toggle-' + id);
+  const isHidden = tabs.style.display === 'none';
+  tabs.style.display = isHidden ? 'flex' : 'none';
+  contents.forEach(c => {
+    if (isHidden) { c.style.display = c.classList.contains('active') ? 'block' : 'none'; }
+    else { c.style.display = 'none'; }
+  });
+  toggle.textContent = isHidden ? '收合 ▲' : '展開 ▼';
+}
+
+function showTab(e, segId, tab) {
+  e.stopPropagation();
+  document.querySelectorAll(`#tabs-${segId} .seg-tab`).forEach(b => b.classList.remove('active'));
+  document.querySelectorAll(`#card-${segId} .segment-content`).forEach(c => c.classList.remove('active'));
+  document.getElementById(`content-${tab}-${segId}`).classList.add('active');
+  e.target.classList.add('active');
+}
+
+
+
+function renderPrompts(segId, text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  const items = lines.map(l => {
+    const m = l.match(/\[P(\d+)\]\s*(.*)/);
+    return m ? `<div class="prompt-item"><span class="prompt-num">P${m[1]}</span><span class="prompt-text">${m[2]}</span></div>` : '';
+  }).filter(Boolean).join('');
+  document.getElementById('content-prompts-' + segId).innerHTML = `<div class="prompt-list">${items}</div>`;
+  document.getElementById('tab-prompt-' + segId).classList.remove('loading');
+}
+
+function renderFactCheck(segId, text) {
+  const confirmed = text.match(/✅[\s\S]*?(?=⚠️|📝|$)/)?.[0] || '';
+  const disputed = text.match(/⚠️[\s\S]*?(?=📝|$)/)?.[0] || '';
+  const sources = text.match(/📝[\s\S]*/)?.[0] || '';
+
+  function toItems(raw) {
+    return raw.split('\n')
+      .filter(l => l.trim() && !l.includes('✅') && !l.includes('⚠️') && !l.includes('📝'))
+      .map(l => `<div class="fc-item">${l.replace(/^[-·•]\s*/, '')}</div>`).join('');
+  }
+
+  document.getElementById('content-fact-' + segId).innerHTML = `
+    <div class="factcheck-section">
+      <div class="fc-block confirmed"><div class="fc-title">✅ 確認無誤</div>${toItems(confirmed)}</div>
+      <div class="fc-block disputed"><div class="fc-title">⚠️ 存疑之處</div>${toItems(disputed)}</div>
+      <div class="fc-block sources"><div class="fc-title">📝 史料來源</div>${toItems(sources)}</div>
+    </div>`;
+  document.getElementById('tab-fact-' + segId).classList.remove('loading');
+}
+
+
+
+function copyCharPrompt() {
+  navigator.clipboard.writeText(generatedData.charPrompt).then(() => {
+    const btns = document.querySelectorAll('.action-btn');
+    btns.forEach(b => { if (b.textContent.includes('角色')) { b.textContent = '✓ 已複製'; setTimeout(() => b.textContent = '複製角色 Prompt', 2000); } });
+  });
+}
+
+async function startGeneration() {
+  if (isGenerating) return;
+  personName = document.getElementById('personInput').value.trim();
+  if (!personName) { showError('請輸入歷史人物名稱'); return; }
+  if (!getAnthropicKey()) { showError('請填入 Anthropic API Key'); return; }
+
+  isGenerating = true;
+  hideError();
+  generatedData = { scripts: [], prompts: [], facts: [], charPrompt: '' };
+
+  document.getElementById('outputArea').innerHTML = '';
+  document.getElementById('outputArea').classList.add('visible');
+  document.getElementById('progressSection').classList.add('visible');
+  document.getElementById('statusLine').classList.add('visible');
+  document.getElementById('finalCard').classList.remove('visible');
+  document.getElementById('generateBtn').disabled = true;
+  document.querySelectorAll('.step-item').forEach(el => el.classList.remove('done', 'active'));
+
+  // ops: 7 scripts + 7 prompts + 7 facts + char prompt
+  totalOps = 7 + 7 + 7 + 2;
+  currentOp = 0;
+
+  try {
+    // 1. Generate all scripts
+    for (let i = 0; i < SEGMENTS.length; i++) {
+      const seg = SEGMENTS[i];
+      setStepActive(i);
+      updateProgress(`生成第 ${i+1} 段腳本：${seg.emoji} ${seg.name}…`);
+
+      const script = await callClaude(
+        `你是一位睡前故事腳本作家。繁體中文，語氣平靜低沉，長句為主，不煽情不說教，偶爾用「也許」「據說」。只輸出純腳本文字。`,
+        buildScriptPrompt(seg, generatedData.scripts)
+      );
+      generatedData.scripts.push(script);
+      createSegmentCard(seg, script);
+      setStepDone(i);
+    }
+
+    // 2. For each segment: generate prompts + images + fact check in parallel-ish
+    for (let i = 0; i < SEGMENTS.length; i++) {
+      const seg = SEGMENTS[i];
+      const script = generatedData.scripts[i];
+
+      // Generate prompts
+      updateProgress(`生成第 ${i+1} 段配圖 Prompt…`);
+      const promptCount = Math.ceil(script.length / 40);
+      const promptText = await callClaude(
+        `You are a visual storyboard consultant specializing in highly detailed historical illustration prompts for AI image generation. You write prompts that describe frozen, still moments — like a painting captured mid-breath.`,
+        `Based on the following historical story script about "${personName}", generate ${promptCount} image prompts.
+
+Script context:
+${script.substring(0, 1500)}
+
+Requirements:
+- ALL prompts must be in English only
+- Format: [P01] description, [P02] description, etc.
+- Each prompt: 40-60 words
+- Describe a SINGLE FROZEN MOMENT — no movement, no action words like "walking" or "running". Use words like "standing", "seated", "gazing", "resting"
+- Include ALL of the following in every prompt:
+  1. Subject: character's posture, facial expression, gaze direction
+  2. Costume: specific fabric, color, pattern, accessories, headwear
+  3. Setting: architecture style, furniture, objects in scene, floor/wall texture
+  4. Lighting: light source (candle, moonlight, dawn, torchlight), direction, shadows, color temperature
+  5. Atmosphere: time of day, weather, season, mood
+  6. Composition: camera angle (eye-level, low angle, bird's eye), foreground/background elements
+- No style words (no "oil painting", "cinematic", "photorealistic", "anime" etc.)
+- Output only the prompt list, nothing else`
+      );
+      generatedData.prompts.push(promptText);
+      renderPrompts(i, promptText);
+
+      // Fact check
+      updateProgress(`第 ${i+1} 段 Fact Check…`);
+      const fact = await callClaude(
+        `你是嚴謹的歷史事實核查員。`,
+        `對以下關於「${personName}」的腳本進行Fact Check。
+腳本：${script.substring(0, 1500)}
+格式：
+✅ 確認無誤：（每條一行）
+⚠️ 存疑之處：（每條一行）
+📝 史料來源：（每條一行）
+只輸出核查內容。`
+      );
+      generatedData.facts.push(fact);
+      renderFactCheck(i, fact);
+    }
+
+    // 3. Character prompt
+    updateProgress(`生成角色基礎 Prompt…`);
+    const charPrompt = await callClaude(
+      `你是專業視覺角色設計師。`,
+      `根據「${personName}」的故事，生成Kling AI角色基礎Prompt。
+包含：年齡感體型、眼神特質、面部特徵、服裝裝扮、氣場氣質。不含風格詞，約150字，只輸出描述。`
+    );
+    generatedData.charPrompt = charPrompt;
+
+    // 4. Final stats
+    updateProgress(`完成！`);
+    showFinalCard(charPrompt);
+
+    document.getElementById('progressPct').textContent = '100%';
+    document.getElementById('progressBar').style.width = '100%';
+    document.getElementById('statusLine').classList.remove('visible');
+
+  } catch (err) {
+    let msg = err.message || String(err);
+    if (msg.includes('Failed to fetch')) {
+      msg = 'Failed to fetch — 可能原因：\n1. API Key 未填入或填錯\n2. 網路問題\n3. 瀏覽器封鎖請求\n\n請打開瀏覽器開發者工具（F12）→ Console，查看詳細錯誤。';
+    }
+    showError(msg);
+    document.getElementById('statusLine').classList.remove('visible');
+  }
+
+  isGenerating = false;
+  document.getElementById('generateBtn').disabled = false;
+}
+
+function buildScriptPrompt(seg, prevScripts) {
+  const instructions = [
+    `引入段落（目標800字）：具體場景開場，不說人物名字，結尾才揭示。`,
+    `出身背景（目標1800字）：時代背景、家族、成長環境，建立歷史座標感。`,
+    `成長與崛起（目標1800字）：關鍵抉擇、貴人相助、命運轉折。`,
+    `核心衝突與轉折（目標2200字）：全集張力最高點，語氣仍保持低沉。`,
+    `權力頂峰時期（目標2000字）：成就與孤獨並存，頂峰的代價。`,
+    `晚年與遠退（目標1800字）：語速感更慢更舒緩，最適合入睡前聆聽。`,
+    `身後影響與餘韻（目標1600字）：遠視角回望，詩意結尾，像夜風輕輕吹過。`,
+  ];
+  const prev = prevScripts.length > 0 ? `\n前段參考（保持風格連貫）：\n${prevScripts[prevScripts.length-1].substring(0, 600)}…` : '';
+  return `請為「${personName}」生成睡前故事腳本第${seg.id+1}段。\n${instructions[seg.id]}\n繁體中文，平靜低沉，長句為主，只輸出腳本正文。${prev}`;
+}
+
+function showFinalCard(charPrompt) {
+  const totalWords = generatedData.scripts.reduce((s, t) => s + t.length, 0);
+  const totalPrompts = generatedData.prompts.reduce((s, p) => s + (p.match(/\[P\d+\]/g) || []).length, 0);
+
+  document.getElementById('finalTitle').textContent = `🌙《${personName}》整集完成`;
+  document.getElementById('statsGrid').innerHTML = [
+    { num: totalWords.toLocaleString(), label: '總字數' },
+    { num: Math.round(totalWords / 150) + ' 分鐘', label: '預計配音時長' },
+    { num: totalPrompts, label: 'Prompt 總數' },
+  ].map(s => `<div class="stat-box"><span class="stat-num">${s.num}</span><span class="stat-label">${s.label}</span></div>`).join('');
+
+  document.getElementById('charPromptText').textContent = charPrompt;
+  document.getElementById('finalCard').classList.add('visible');
+}
+
+function resetAll() {
+  document.getElementById('personInput').value = '';
+  document.getElementById('outputArea').innerHTML = '';
+  document.getElementById('outputArea').classList.remove('visible');
+  document.getElementById('progressSection').classList.remove('visible');
+  document.getElementById('finalCard').classList.remove('visible');
+  document.getElementById('statusLine').classList.remove('visible');
+  document.querySelectorAll('.step-item').forEach(el => el.classList.remove('done', 'active'));
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressPct').textContent = '0%';
+  generatedData = { scripts: [], prompts: [], facts: [], charPrompt: '' };
+  hideError();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('personInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startGeneration();
+});
+</script>
+</body>
+</html>
