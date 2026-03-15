@@ -953,7 +953,7 @@ function showError(msg) {
 
 function hideError() { document.getElementById('errorBox').classList.remove('visible'); }
 
-async function callClaude(system, user) {
+async function callClaudeOnce(system, user, messages) {
   const key = getAnthropicKey();
   if (!key) throw new Error('請填入 Anthropic API Key');
   const res = await fetch('/.netlify/functions/claude', {
@@ -964,9 +964,9 @@ async function callClaude(system, user) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 4000,
+      max_tokens: 2000,
       system,
-      messages: [{ role: 'user', content: user }]
+      messages
     })
   });
   if (!res.ok) {
@@ -978,7 +978,40 @@ async function callClaude(system, user) {
     throw new Error(errMsg);
   }
   const data = await res.json();
-  return data.content.map(b => b.text || '').join('');
+  const text = data.content.map(b => b.text || '').join('');
+  const stopReason = data.stop_reason;
+  return { text, stopReason };
+}
+
+// Calls Claude in multiple rounds if response is cut off
+async function callClaude(system, user) {
+  let messages = [{ role: 'user', content: user }];
+  let fullText = '';
+  let rounds = 0;
+  const maxRounds = 6;
+
+  while (rounds < maxRounds) {
+    const { text, stopReason } = await callClaudeOnce(system, user, messages);
+    fullText += text;
+    rounds++;
+
+    // If stopped naturally, we're done
+    if (stopReason === 'end_turn') break;
+
+    // If max_tokens hit, continue from where we left off
+    if (stopReason === 'max_tokens') {
+      messages = [
+        { role: 'user', content: user },
+        { role: 'assistant', content: fullText },
+        { role: 'user', content: '請繼續，從你停下的地方接著寫，不要重複已寫的內容。' }
+      ];
+      document.getElementById('statusText').textContent += '（續寫中…）';
+    } else {
+      break;
+    }
+  }
+
+  return fullText;
 }
 
 
